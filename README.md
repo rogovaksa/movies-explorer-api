@@ -4,6 +4,6 @@
 
 IP 158.160.35.137
 
-Frontend 
+Frontend rogovaksa.nomoreparties.co
 
-Backend 
+Backend api.rogovaksa.nomoreparties.co
