@@ -5,7 +5,8 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 
 const getMovies = (req, res, next) => {
-  Movie.find({ owner: req.user._id })
+  const { _id } = req.user;
+  Movie.find({ owner: _id })
     .then((movies) => res.send(movies))
     .catch(next);
 };
@@ -24,7 +25,8 @@ const createMovie = (req, res, next) => {
     nameRU,
     nameEN,
   } = req.body;
-  const owner = req.user._id;
+
+  const { _id } = req.user;
 
   Movie.create({
     country,
@@ -35,15 +37,12 @@ const createMovie = (req, res, next) => {
     image,
     trailerLink,
     thumbnail,
-    owner,
+    owner: _id,
     movieId,
     nameRU,
     nameEN,
   })
-    .then((movie) => {
-      const { _id: dbMovieId } = movie;
-      res.status(201).send({ message: dbMovieId });
-    })
+    .then((movie) => res.status(201).send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные при создании фильма'));
@@ -54,13 +53,16 @@ const createMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.movieId)
+  const { id: movieId } = req.params;
+  const { _id: userId } = req.user;
+  Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError('Вы можете удалять только свои фильмы');
+        throw new NotFoundError('Фильм не найден');
       }
-      if (movie.owner.toString() !== req.user._id) {
-        throw new ForbiddenError('Передан некорректный id карточки фильма');
+      const { owner: movieOwnerId } = movie;
+      if (movieOwnerId.valueOf() !== userId) {
+        throw new ForbiddenError('Вы можете удалять только свои фильмы');
       } else {
         movie.deleteOne(movie)
           .then(() => {

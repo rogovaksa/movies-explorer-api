@@ -9,28 +9,6 @@ const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 
-// const getUsers = (req, res, next) => {
-//   User.find({})
-//     .then((users) => res.send(users))
-//     .catch(next);
-// };
-
-// const getUserById = (req, res, next) => {
-//   const { userId } = req.params;
-//   User.findById(userId)
-//     .then((user) => {
-//       if (user) return res.send(user);
-//       throw new NotFoundError('Пользователь с указанным id не найден');
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         next(new InaccurateDataError('Передан некорректный id'));
-//       } else {
-//         next(err);
-//       }
-//     });
-// };
-
 const createUser = (req, res, next) => {
   const {
     email,
@@ -73,7 +51,9 @@ const updateUserProfile = (req, res, next) => {
       throw new NotFoundError('Пользователь с указанным id не найден');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные при обновлении профиля пользователя'));
       } else {
         next(err);
