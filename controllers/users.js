@@ -87,8 +87,6 @@ const getCurrentUser = (req, res, next) => {
 };
 
 module.exports = {
-  // getUsers,
-  // getUserById,
   createUser,
   updateUserProfile,
   login,

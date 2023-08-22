@@ -5,8 +5,8 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 
 const getMovies = (req, res, next) => {
-  const { _id } = req.user;
-  Movie.find({ owner: _id })
+  const { userId } = req.user;
+  Movie.find({ owner: userId })
     .then((movies) => res.send(movies))
     .catch(next);
 };
@@ -26,7 +26,7 @@ const createMovie = (req, res, next) => {
     nameEN,
   } = req.body;
 
-  const { _id } = req.user;
+  const { userId } = req.user;
 
   Movie.create({
     country,
@@ -37,7 +37,7 @@ const createMovie = (req, res, next) => {
     image,
     trailerLink,
     thumbnail,
-    owner: _id,
+    owner: userId,
     movieId,
     nameRU,
     nameEN,
@@ -54,7 +54,7 @@ const createMovie = (req, res, next) => {
 
 const deleteMovie = (req, res, next) => {
   const { id: movieId } = req.params;
-  const { _id: userId } = req.user;
+  const { userId } = req.user;
   Movie.findById(movieId)
     .then((movie) => {
       if (!movie) {
